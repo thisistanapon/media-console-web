@@ -46,6 +46,22 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 a{color:inherit;text-decoration:none}
 ::selection{background:var(--blue);color:#fff}
 
+/* ---------- review chrome ---------- */
+.chrome{
+  position:sticky;top:0;z-index:900;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:24px;height:44px;padding:0 20px;
+  background:#0B0B0C;color:#fff;
+}
+.chrome b{font-size:12px;font-weight:500;letter-spacing:.14em;text-transform:uppercase}
+.chrome span{color:#7A7A80;font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+.vtoggle{display:flex;gap:2px;background:#1C1C20;border-radius:6px;padding:2px}
+.vtoggle button{
+  font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  padding:6px 14px;border-radius:4px;color:#8A8A90;transition:var(--fast);
+}
+.vtoggle button.on{background:var(--blue);color:#fff}
+
 /* ---------- viewport (container query root) ---------- */
 .stage{padding:0;transition:padding var(--base) var(--ease)}
 .stage.mobile{padding:28px 0 48px}
@@ -1147,14 +1163,383 @@ P['/case-studies']=function(){
  return heroLight('Case studies','Two sectors, examined properly.',
  '<p class="body">Longer-form than a project page: what we found, what we got wrong, and what the client did with it afterwards. Written with the client and published with their approval.</p>')+
  '<section class="sec--sm"><div class="wrap">'+CASES.map(function(c,i){
-  return '<a href="#/case-studies/'+c.slug+'" class="row rv" data-go="/case-studies/'+c.slug+'" style="align-items:flex-start;padding:44px 0">'+
-  '<span class="idx" style="padding-top:8px">0'+(i+1)+'</span>'+
-  '<span><span class="nm" style="display:block">'+c.title+'</span>'+
-  '<span class="body" style="display:block;margin-top:12px;max-width:52ch">'+c.lead+'</span></span>'+
-  '<span class="ct" style="padding-top:8px">'+c.metrics[0][0]+' '+c.metrics[0][1].toLowerCase()+'</span>'+
-  '<span class="ar" style="padding-top:4px">'+ARRL+'</span></a>'}).join('')+
- '</div></section>';
+  return '<a href="#/case-studies/'+c.slug+'" data-go="/case-studies/'+c.slug+'" class="pj rv" style="display:block;'+(i?'margin-top:96px':'')+'">'+
+  '<div class="g"><div class="s7'+(i?' st6':'')+'">'+frame('3x2','Photography — 3:2 · '+c.client)+'</div>'+
+  '<div class="s4'+(i?'':' st9')+'" style="align-self:center">'+
+  '<span class="tag">'+c.name+'</span><h2 class="h2 mt14 t">'+c.title+'</h2>'+
+  '<p class="body mt20">'+c.lead+'</p>'+
+  '<div class="mrow mt40" style="grid-template-columns:1fr 1fr">'+c.metrics.slice(0,2).map(function(m){return metric(m[0],m[1])}).join('')+'</div>'+
+  '<span class="tlink mt32" style="display:inline-flex">Read the case study'+ARR+'</span></div></div></a>'}).join('')+
+ '</div></section>'+
+ cta('Want this level of detail on your sector?','','Talk to us','/contact','tint');
 };
+
+function caseDetail(c){
+ var chart = c.chart==='forecast'?CH.forecast():CH.flow();
+ var other = CASES.filter(function(x){return x.slug!==c.slug})[0];
+ return '<header class="hero--light" style="padding-bottom:56px"><div class="wrap g"><div class="s8">'+
+ crumb([{t:'Home',to:'/'},{t:'Case Studies',to:'/case-studies'},{t:c.name}])+
+ '<div style="height:26px"></div><span class="tag">'+c.name+' · '+c.year+'</span>'+
+ '<h1 class="dl mt14">'+c.title+'</h1>'+
+ '<p class="lead mt32" style="max-width:34em">'+c.lead+'</p></div>'+
+ '<div class="s3 st10" style="align-self:end"><div class="kv"><div><dt>Client</dt><dd>'+c.client+'</dd></div>'+
+ '<div><dt>Sector</dt><dd>'+c.name+'</dd></div><div><dt>Period</dt><dd>'+c.year+'</dd></div></div></div></div></header>'+
+ '<section style="padding:0 0 96px"><div class="wrap"><div class="rv">'+ph('21x9','Photography — 21:9 · '+c.client)+'</div></div></section>'+
+ '<section style="padding:0 0 96px"><div class="wrap"><div class="rv" style="border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:56px 0">'+
+ '<div class="stats">'+c.metrics.map(function(m){return stat(m[0],m[1])}).join('')+'</div></div></div></section>'+
+ '<section class="sec--sm" style="padding-top:0"><div class="wrap g">'+
+ '<div class="s3 rv"><div class="toc"><div class="label">Contents</div><div class="mt24">'+
+ c.body.map(function(b,i){return '<a href="#sec-'+i+'"'+(i===0?' class="on"':'')+'>'+('0'+(i+1))+' — '+b[0]+'</a>'}).join('')+
+ '</div></div></div>'+
+ '<div class="s8 st5">'+c.body.map(function(b,i){
+   var extra = i===2 ? '<div class="mt40">'+figure(chart,'Fig. '+(13+i)+' — '+b[0],'')+'</div>' : (i===1?'<div class="mt40">'+ph('16x7','Photography — 16:7 · Discovery workshop')+'</div>':'');
+   return '<div id="sec-'+i+'" class="rv" style="'+(i?'margin-top:72px':'')+'">'+
+   '<div class="mono">'+('0'+(i+1))+'</div><h2 class="h2 mt14">'+b[0]+'</h2>'+
+   '<div class="prose mt24"><p>'+b[1]+'</p><p>'+b[2]+'</p></div>'+extra+'</div>'}).join('')+
+ '<div class="qc rv" style="margin-top:72px"><p class="quote">&ldquo;'+c.quote+'&rdquo;</p><p class="cap mt20">'+c.by+'</p></div>'+
+ '</div></div></section>'+
+ '<section class="sec--sm tint"><div class="wrap"><div class="label rv">Projects in this programme</div>'+
+ '<div class="g mt56">'+c.projects.map(function(sl){var p=PROJECTS.filter(function(x){return x.slug===sl})[0];
+   return '<a href="#/work/'+p.slug+'" class="s4 pj rv" data-go="/work/'+p.slug+'">'+frame('4x3','Photography — 4:3 · '+p.client)+
+   '<span class="tag">'+p.catName+'</span><h3 class="t">'+p.title+'</h3><div class="m">'+p.metricLine+'</div></a>'}).join('')+
+ '</div></div></section>'+
+ '<div class="np"><a href="#/case-studies" data-go="/case-studies"><div class="d">← All case studies</div><div class="t">Back to the index</div></a>'+
+ '<a href="#/case-studies/'+other.slug+'" data-go="/case-studies/'+other.slug+'" style="text-align:right"><div class="d">Next case study →</div><div class="t">'+other.title+'</div></a></div>'+
+ cta('Could this be your reporting cycle?','','Book a scoping call','/contact','blue');
+}
+
+/* ---------- how it works ---------- */
+P['/how-it-works']=function(){
+ return heroLight('How it works','An engagement, from first call to handover.',
+ '<p class="body">No discovery fee, no procurement theatre, and a written scope before you commit to anything. Here is exactly what happens.</p>',
+ crumb([{t:'Home',to:'/'},{t:'Resources'},{t:'How It Works'}]))+
+ '<section class="sec--sm"><div class="wrap g">'+
+ '<div class="s3 rv"><div class="toc"><div class="label">Stages</div><div class="mt24">'+
+ ['First call','Written scope','Assessment','Delivery','Handover'].map(function(t,i){
+   return '<a href="#stage-'+i+'"'+(i===0?' class="on"':'')+'>'+('0'+(i+1))+' — '+t+'</a>'}).join('')+
+ '</div></div></div><div class="s8 st5">'+
+ [['First call','30 minutes','You describe the decision you are trying to make. We tell you whether we think we can help, and if we cannot, who might. There is no deck and nobody from sales joins.','Nothing to prepare. No NDA needed at this stage unless you want one.'],
+  ['Written scope','3–5 days','We send a two-page scope: deliverables, duration, price, named team and the acceptance criteria for each item. It is fixed-price. If we have misunderstood, you tell us and we redraft.','You get the deliverable list before you commit to anything.'],
+  ['Assessment','2–10 weeks','Stakeholder interviews, a full source inventory and a quantified view of the gap. The output is a document, not a slide deck, and the uncomfortable findings appear first.','About twelve to twenty of your people for an hour each, plus read access to source systems.'],
+  ['Delivery','12–20 weeks','Two-week increments against the acceptance criteria you signed. A demo at the end of every increment, whether or not there is good news. Scope changes are written down and repriced before they start.','A named product owner on your side, available for two hours a week.'],
+  ['Handover','90 days','Joint operation: your team runs it, we sit behind them. Runbooks, training and documentation written to a standard your auditor would accept. Then we leave.','Two of your people identified as the eventual owners, from week one of delivery.']]
+ .map(function(s,i){return '<div id="stage-'+i+'" class="rv" style="'+(i?'margin-top:72px;':'')+'border-top:1px solid var(--line);padding-top:32px">'+
+   '<div class="sp"><div class="mono" style="color:#2558FF">'+('0'+(i+1))+'</div><span class="badge">'+s[1]+'</span></div>'+
+   '<h2 class="h2 mt14">'+s[0]+'</h2><p class="body mt20" style="max-width:60ch">'+s[2]+'</p>'+
+   '<div class="mt24" style="background:var(--surface);border-radius:14px;padding:20px 24px">'+
+   '<span class="mono">What we need from you</span><p class="small mt8" style="color:var(--ink)">'+s[3]+'</p></div></div>'}).join('')+
+ '</div></div></section>'+
+ '<section class="sec--sm dark"><div class="wrap"><div class="g"><div class="s5 rv"><div class="label">Commercials</div>'+
+ '<h2 class="h1 mt24" style="color:#fff">Fixed price. Written scope. No change-order economy.</h2>'+
+ '<p class="body mt24">Roughly four percent of our engagements are repriced mid-flight, always because the client changed the goal. When that happens you get a new two-page scope before anyone writes code.</p></div>'+
+ '<div class="s6 st7 rv"><div class="kv"><div><dt>Assessment</dt><dd>From $45,000</dd></div>'+
+ '<div><dt>Build engagement</dt><dd>$150,000 – $400,000</dd></div>'+
+ '<div><dt>Payment</dt><dd>Milestone-based, on acceptance</dd></div>'+
+ '<div><dt>Contract</dt><dd>Fixed scope, fixed price</dd></div>'+
+ '<div><dt>Support after handover</dt><dd>Optional light retainer</dd></div></div></div></div></div></section>'+
+ '<section class="sec--sm"><div class="wrap g"><div class="s3 rv"><div class="label">Common questions</div></div>'+
+ '<div class="s8 st5">'+FAQS[0][1].map(function(f,i){
+   return '<div class="acc'+(i===0?' open':'')+' rv"><button>'+f[0]+'<span class="pm"></span></button><div class="ans"><div><p class="body">'+f[1]+'</p></div></div></div>'}).join('')+
+ '<a href="#/faqs" class="tlink mt32" data-go="/faqs">All frequent questions'+ARR+'</a></div></div></section>'+
+ cta('Start with the first call.','Thirty minutes, no deck, no discovery fee.','Book a call','/contact','blue');
+};
+
+/* ---------- faqs ---------- */
+P['/faqs']=function(){
+ return heroLight('FAQs','Questions we get asked before the first meeting.',
+ '<p class="body">If yours is not here, ask it directly — we would rather answer it now than in a proposal.</p>'+
+ '<a href="#/contact" class="tlink mt24" data-go="/contact">Ask a question'+ARR+'</a>',
+ crumb([{t:'Home',to:'/'},{t:'Resources'},{t:'FAQs'}]))+
+ '<section class="sec--sm"><div class="wrap g"><div class="s3 rv"><div class="toc"><div class="label">Categories</div>'+
+ '<div class="mt24">'+FAQS.map(function(f,i){return '<a href="#faq-'+i+'"'+(i===0?' class="on"':'')+'>'+f[0]+'</a>'}).join('')+'</div></div></div>'+
+ '<div class="s8 st5">'+FAQS.map(function(f,i){
+   return '<div id="faq-'+i+'" class="rv" style="'+(i?'margin-top:64px':'')+'"><div class="label">'+f[0]+'</div><div class="mt24">'+
+   f[1].map(function(q,n){return '<div class="acc'+(i===0&&n===0?' open':'')+'"><button>'+q[0]+'<span class="pm"></span></button><div class="ans"><div><p class="body">'+q[1]+'</p></div></div></div>'}).join('')+
+   '</div></div>'}).join('')+'</div></div></section>'+
+ cta('Still deciding?','Ask us the awkward question on a 30-minute call.','Book a call','/contact','tint');
+};
+
+/* ---------- careers ---------- */
+P['/careers']=function(){
+ return heroLight('Careers','Senior people, small firm, no pyramid.',
+ '<p class="body">We hire slowly and staff engagements with the people who scoped them. If you want to be the eleven-year consultant rather than manage twelve of them, this is the right size of firm.</p>',
+ crumb([{t:'Home',to:'/'},{t:'Resources'},{t:'Careers'}]))+
+ '<section class="sec--sm"><div class="wrap"><div class="rv">'+ph('16x7','Photography — 16:7 · Bangkok studio, Thursday review')+'</div>'+
+ '<div class="g mt96">'+
+ [['No pyramid','Median seniority is eleven years. You will not spend your week reviewing junior work you could have done faster yourself.'],
+  ['Fixed scope','Because engagements are fixed-price and written down, nobody is on a project that has quietly doubled in size.'],
+  ['Two sectors','Depth over breadth. You will get genuinely good at hospitality or capital-markets data rather than passably good at everything.'],
+  ['You leave, on purpose','Every engagement ends in handover. You will build things designed to outlive your involvement, which is a rare thing to be able to say.']]
+ .map(function(b){return '<div class="s6 rv" style="border-top:1px solid var(--line);padding-top:28px;margin-bottom:8px"><h3 class="h3">'+b[0]+'</h3><p class="body mt14">'+b[1]+'</p></div>'}).join('')+
+ '</div></div></section>'+
+ '<section class="sec--sm tint"><div class="wrap"><div class="sp rv"><div><div class="label">Open roles</div>'+
+ '<h2 class="h1 mt24">Three roles, all senior.</h2></div><span class="badge badge--blue">Hiring now</span></div>'+
+ '<div class="mt56">'+JOBS.map(function(j){
+   return '<a href="#/careers/'+j.slug+'" class="job rv" data-go="/careers/'+j.slug+'">'+
+   '<h4>'+j.title+'</h4><span class="meta">'+j.team+'</span><span class="meta">'+j.loc+' · '+j.type+'</span>'+
+   '<span class="ar">'+ARRL+'</span></a>'}).join('')+
+ '</div><p class="cap mt40 rv">Nothing that fits? Send us a note anyway — we open roles when the right person appears. <a href="#/contact" data-go="/contact" style="color:var(--blue)">Get in touch.</a></p></div></section>'+
+ '<section class="sec--sm"><div class="wrap g"><div class="s5 rv"><div class="label">Hiring process</div>'+
+ '<h2 class="h1 mt24">Four conversations, three weeks.</h2>'+
+ '<p class="body mt24">We do not set take-home tests longer than two hours, and we pay for anything beyond that.</p></div>'+
+ '<div class="s6 st7 rv">'+[['Intro call','45 minutes with the practice lead. Mutual filtering.'],
+  ['Work session','Two hours on a real, anonymised client problem. Paid.'],
+  ['Panel','Two consultants and one engineer. Mostly about how you handle disagreement.'],
+  ['Offer','Reference calls, then a written offer within three working days.']]
+ .map(function(s,i){return '<div style="border-top:1px solid var(--line);padding:22px 0;display:flex;gap:20px">'+
+   '<span class="mono" style="color:#2558FF;padding-top:3px">0'+(i+1)+'</span><span><span class="h4" style="display:block">'+s[0]+'</span>'+
+   '<span class="small" style="display:block;margin-top:6px">'+s[1]+'</span></span></div>'}).join('')+'</div></div></section>'+
+ cta('Not the right time?','Tell us what you would want to work on and we will keep it on file.','Send us a note','/contact','blue');
+};
+
+function jobDetail(j){
+ var others=JOBS.filter(function(x){return x.slug!==j.slug});
+ return '<header class="hero--light" style="padding-bottom:56px"><div class="wrap g"><div class="s7">'+
+ crumb([{t:'Home',to:'/'},{t:'Careers',to:'/careers'},{t:j.title}])+
+ '<div style="height:26px"></div><h1 class="dl">'+j.title+'</h1>'+
+ '<div class="fx mt24"><span class="badge">'+j.team+'</span><span class="badge">'+j.loc+'</span><span class="badge">'+j.type+'</span></div>'+
+ '<p class="lead mt32" style="max-width:34em">'+j.lead+'</p></div></div></header>'+
+ '<section class="sec--sm"><div class="wrap g"><div class="s7 rv"><div class="prose">'+
+ '<h2>What you will do</h2><ul>'+j.resp.map(function(r){return '<li>'+r+'</li>'}).join('')+'</ul>'+
+ '<h2>What we are looking for</h2><ul>'+j.req.map(function(r){return '<li>'+r+'</li>'}).join('')+'</ul>'+
+ '<h2>Useful, not required</h2><ul>'+j.nice.map(function(r){return '<li>'+r+'</li>'}).join('')+'</ul>'+
+ '<h2>How we hire</h2><p>Four conversations over about three weeks: an intro call, a paid two-hour work session on an anonymised client problem, a panel with two consultants and an engineer, then references and a written offer. We do not set unpaid take-home tests.</p>'+
+ '</div></div>'+
+ '<div class="s4 st9 rv"><div style="position:sticky;top:96px"><div class="form" style="padding:36px">'+
+ '<div class="label">Apply</div><h3 class="h3 mt20">'+j.title+'</h3>'+
+ '<div class="kv mt24"><div><dt>Team</dt><dd>'+j.team+'</dd></div><div><dt>Location</dt><dd>'+j.loc+'</dd></div>'+
+ '<div><dt>Type</dt><dd>'+j.type+'</dd></div></div>'+
+ '<a href="#/contact" class="btn btn--pri mt32" data-go="/contact" style="width:100%;justify-content:center">Apply for this role'+ARR+'</a>'+
+ '<p class="cap mt20">Or email your CV and a short note to careers@datum.co. We reply to every application.</p></div></div></div></div></section>'+
+ '<section class="sec--sm tint"><div class="wrap"><div class="label rv">Other open roles</div><div class="mt40">'+
+ others.map(function(o){return '<a href="#/careers/'+o.slug+'" class="job rv" data-go="/careers/'+o.slug+'">'+
+   '<h4>'+o.title+'</h4><span class="meta">'+o.team+'</span><span class="meta">'+o.loc+' · '+o.type+'</span><span class="ar">'+ARRL+'</span></a>'}).join('')+
+ '</div></div></section>'+
+ cta('Questions before you apply?','Ask the practice lead directly.','Get in touch','/contact','blue');
+}
+</script>
+
+<script>
+/* ---------- contact ---------- */
+P['/contact']=function(){
+ return heroLight('Contact','Tell us what you are trying to figure out.',
+ '<div style="border-top:1px solid var(--line);padding-top:18px"><a href="#/contact" class="h4" data-go="/contact" style="display:block">hello@datum.co</a></div>'+
+ '<div style="border-top:1px solid var(--line);padding-top:18px;margin-top:18px"><a href="#/contact" class="h4" data-go="/contact" style="display:block">+66 2 123 4567</a></div>'+
+ '<p class="cap mt20">Monday to Friday, 09:00–18:00 ICT. We reply within one business day.</p>')+
+ '<section class="sec--sm"><div class="wrap g"><div class="s7 rv"><div class="form" id="formcard">'+
+ '<div class="label">Send a message</div><div class="mt32">'+
+ '<div class="pair"><div class="field"><label>Name <s>*</s></label><input type="text" placeholder="Your full name"></div>'+
+ '<div class="field"><label>Company <s>*</s></label><input type="text" placeholder="Organisation"></div></div>'+
+ '<div class="field"><label>Work email <s>*</s></label><input type="email" placeholder="name@company.com"></div>'+
+ '<div class="pair"><div class="field"><label>Service interest</label><select id="svcsel"><option>Select a service</option>'+
+ SERVICES.map(function(s){return '<option value="'+s.slug+'">'+s.title.replace('&amp;','&')+'</option>'}).join('')+
+ '<option>Not sure yet</option></select></div>'+
+ '<div class="field"><label>Budget range</label><select><option>Optional</option><option>Under $50k</option><option>$50k – $150k</option><option>$150k – $400k</option><option>$400k+</option></select></div></div>'+
+ '<div class="field"><label>How can we help? <s>*</s></label><textarea placeholder="What is the decision you are trying to make, and what is in the way?"></textarea></div>'+
+ '<div class="check"><i></i><p class="cap">I agree to Datum storing my details in order to respond to this enquiry. See the <a href="#/privacy" data-go="/privacy" style="color:var(--blue)">privacy policy</a>.</p></div>'+
+ '<button class="btn btn--pri" style="width:100%;justify-content:center" id="sendbtn">Send message'+ARR+'</button>'+
+ '</div></div></div>'+
+ '<div class="s4 st9 rv"><div class="label">Offices</div>'+
+ '<div class="mt32" style="border-top:1px solid var(--line);padding-top:22px"><h4 class="h4">Bangkok <span class="mono" style="margin-left:6px">HQ</span></h4>'+
+ '<p class="small mt8">28th Floor, Sathorn Square<br>98 North Sathorn Road, Silom<br>Bangkok 10500, Thailand</p><p class="small mt8">+66 2 123 4567</p></div>'+
+ '<div class="mt32" style="border-top:1px solid var(--line);padding-top:22px"><h4 class="h4">Singapore</h4>'+
+ '<p class="small mt8">Level 12, One Raffles Quay<br>North Tower, Singapore 048583</p><p class="small mt8">+65 6123 4567</p></div>'+
+ '<div class="map mt40"><i></i><a href="#/contact" data-go="/contact">View on maps →</a></div></div></div></section>'+
+ '<section class="sec--sm tint"><div class="wrap g"><div class="s3 rv"><div class="label">Before you write</div>'+
+ '<p class="small mt20">The three questions we are asked most often. <a href="#/faqs" data-go="/faqs" style="color:var(--blue)">See all FAQs.</a></p></div>'+
+ '<div class="s8 st5">'+FAQS[0][1].concat([FAQS[1][1][0]]).map(function(f,i){
+   return '<div class="acc'+(i===0?' open':'')+' rv"><button>'+f[0]+'<span class="pm"></span></button><div class="ans"><div><p class="body">'+f[1]+'</p></div></div></div>'}).join('')+
+ '</div></div></section>'+
+ cta('Prefer to just talk it through?','Thirty minutes with a senior consultant. No deck, no discovery fee.','Book a call','/contact','dark');
+};
+
+/* ---------- legal ---------- */
+function legal(kind){
+ var isP = kind==='privacy';
+ var title = isP?'Privacy Policy':'Cookie Policy';
+ var secs = isP ? [
+  ['Who we are','Datum Group Co., Ltd. is a data and analytics consultancy registered in Thailand, with offices in Bangkok and Singapore. This policy explains what personal data we collect through this website and in the course of client work, and what we do with it.','For any question about this policy, or to exercise a right described below, write to privacy@datum.co.'],
+  ['What we collect','Through this website we collect only what you give us: the name, company, email address, service interest, budget range and message you submit through the contact form, along with standard server logs and the analytics described in our cookie policy.','In the course of client engagements we process data belonging to our clients. In that context we act as a data processor, under the instructions of the client and the terms of the engagement contract.'],
+  ['How we use it','Enquiry details are used to respond to your enquiry and, where you have asked for it, to send you a proposal. We do not sell personal data, we do not share it with advertising networks, and we do not use client data to train models.','Where you have opted in, we may send occasional updates about our work. Every message contains an unsubscribe link that works.'],
+  ['How long we keep it','Enquiries that do not become engagements are deleted after twenty-four months. Engagement records are retained for the period required by Thai and Singaporean commercial and tax law, currently five years from the end of the engagement.','Client data processed during an engagement is deleted or returned at handover, on the client instruction recorded in the contract.'],
+  ['Your rights','Under the Thai Personal Data Protection Act and, where applicable, the Singapore Personal Data Protection Act, you may request access to the personal data we hold about you, ask us to correct it, ask us to delete it, or object to its processing.','We respond to requests within thirty days. If you are not satisfied with our response you may complain to the Office of the Personal Data Protection Committee in Thailand.'],
+  ['Security','Data is held in access-controlled cloud infrastructure in Singapore, encrypted in transit and at rest. Access is limited to employees who need it for their work, and all employees carry background checks and are bound by confidentiality obligations that survive employment.','We have never had a reportable data breach. If we do, affected individuals and the relevant regulator will be notified within the statutory window.'],
+  ['Changes','We update this policy when our practices change. The date of the current version appears at the top of this page, and material changes are announced on this page for thirty days before they take effect.','']
+ ] : [
+  ['What cookies we use','This site uses a deliberately small number of cookies. There is no advertising network on this site, no cross-site tracking and no data broker relationship.','We set one strictly necessary cookie to remember your cookie preference, and one first-party analytics cookie if you consent to analytics.'],
+  ['Strictly necessary','These cookies are required for the site to function and cannot be switched off. They store your cookie choice and, if you submit the contact form, a short-lived token that prevents duplicate submissions. They expire after twelve months.',''],
+  ['Analytics','With your consent we use privacy-preserving first-party analytics to count page views and understand which pages are read. IP addresses are truncated before storage and no cross-site identifier is created. Declining analytics does not change how the site works.',''],
+  ['What we do not use','No advertising cookies. No social media pixels. No session recording or heatmap tools. No fingerprinting. If that changes, this page changes first and consent is requested again.',''],
+  ['Managing your choice','You can change your cookie preference at any time from the link in the footer, or by clearing cookies for this domain in your browser. Most browsers also let you block cookies entirely; the site will continue to work.',''],
+  ['Contact','Questions about cookies or anything else on this page can go to privacy@datum.co, and we will answer within five working days.','']
+ ];
+ return heroLight('Legal',title,
+  '<p class="body">Version 3.1 — last updated 12 June 2026.</p><p class="body mt14">Written to be read. If any part of it is unclear, tell us and we will rewrite it.</p>',
+  crumb([{t:'Home',to:'/'},{t:'Legal'},{t:title}]))+
+ '<section class="sec--sm"><div class="wrap g"><div class="s3 rv"><div class="toc"><div class="label">Contents</div><div class="mt24">'+
+ secs.map(function(s,i){return '<a href="#lg-'+i+'"'+(i===0?' class="on"':'')+'>'+s[0]+'</a>'}).join('')+'</div>'+
+ '<a href="#/'+(isP?'cookies':'privacy')+'" class="tlink mt32" data-go="/'+(isP?'cookies':'privacy')+'">'+(isP?'Cookie Policy':'Privacy Policy')+ARR+'</a>'+
+ '</div></div>'+
+ '<div class="s8 st5 rv"><div class="prose">'+secs.map(function(s,i){
+   return '<h2 id="lg-'+i+'">'+s[0]+'</h2><p>'+s[1]+'</p>'+(s[2]?'<p>'+s[2]+'</p>':'')}).join('')+'</div></div></div></section>'+
+ cta('Something here not clear?','','Ask us','/contact','tint');
+}
+P['/privacy']=function(){return legal('privacy')};
+P['/cookies']=function(){return legal('cookies')};
+</script>
+
+<script>
+/* ============ router + interactions ============ */
+(function(){
+ var app=document.getElementById('app'), nav=document.getElementById('nav'), cta2=document.getElementById('navcta');
+ var TITLES={'/':'Home','/about':'About','/services':'Services','/work':'Work','/case-studies':'Case Studies',
+  '/contact':'Contact','/how-it-works':'How It Works','/faqs':'FAQs','/careers':'Careers','/privacy':'Privacy Policy','/cookies':'Cookie Policy'};
+ var route='/';
+
+ function find(arr,slug){var r=arr.filter(function(x){return x.slug===slug})[0];return r}
+
+ function resolve(path){
+  if(P[path]) return {html:P[path](),title:TITLES[path]||'Datum',top:path};
+  var m=path.split('/').filter(Boolean);
+  if(m[0]==='services'&&m[1]){var s=find(SERVICES,m[1]); if(s) return {html:serviceDetail(s),title:s.title.replace('&amp;','&'),top:'/services'};}
+  if(m[0]==='work'&&m[1]){var p=find(PROJECTS,m[1]); if(p) return {html:projectDetail(p),title:p.client,top:'/work'};}
+  if(m[0]==='case-studies'&&m[1]){var c=find(CASES,m[1]); if(c) return {html:caseDetail(c),title:c.name+' case study',top:'/case-studies'};}
+  if(m[0]==='careers'&&m[1]){var j=find(JOBS,m[1]); if(j) return {html:jobDetail(j),title:j.title,top:'/careers'};}
+  return {html:heroLight('Error 404','That page does not exist.','<p class="body">The link may be out of date. Try the <a href="#/work" data-go="/work" style="color:var(--blue)">work archive</a> or <a href="#/contact" data-go="/contact" style="color:var(--blue)">get in touch</a>.</p>')+
+   cta('Looking for something specific?','','Ask us','/contact','tint'),title:'Not found',top:'/'};
+ }
+
+ function setNav(){
+  var solid = (route!=='/') || window.scrollY>260;
+  nav.classList.toggle('solid',solid);
+  cta2.className='btn '+(solid?'btn--pri':'btn--oinv');
+  var h=document.documentElement.scrollHeight-window.innerHeight;
+  document.getElementById('prog').style.width=(h>0?(window.scrollY/h*100):0)+'%';
+ }
+
+ function go(path,push){
+  path=path||'/';
+  var r=resolve(path);
+  route=path;
+  app.innerHTML=r.html;
+  var pgn=document.getElementById('pgname'); if(pgn) pgn.textContent=r.title;
+  document.querySelectorAll('#nl a,.drawer a').forEach(function(a){
+   var t=a.getAttribute('data-go');
+   a.classList.toggle('on', t===r.top || t===path);
+  });
+  nav.classList.remove('open');
+  window.scrollTo(0,0);
+  setNav(); bind(); observe();
+  if(push!==false) history.replaceState(null,'','#'+path);
+ }
+
+ /* delegated navigation */
+ document.addEventListener('click',function(e){
+  var a=e.target.closest('[data-go]');
+  if(a){ e.preventDefault(); go(a.getAttribute('data-go')); return; }
+  var anch=e.target.closest('a[href^="#sec-"],a[href^="#faq-"],a[href^="#lg-"],a[href^="#stage-"]');
+  if(anch){ e.preventDefault();
+   var el=document.querySelector(anch.getAttribute('href'));
+   if(el){ window.scrollTo({top:el.getBoundingClientRect().top+window.scrollY-110,behavior:'smooth'}); }
+   var box=anch.closest('.toc'); if(box){ box.querySelectorAll('a').forEach(function(x){x.classList.remove('on')}); anch.classList.add('on'); }
+  }
+ });
+
+ document.getElementById('burger').addEventListener('click',function(){ nav.classList.toggle('open'); });
+ window.addEventListener('scroll',setNav,{passive:true});
+
+ /* reveal */
+ var io=new IntersectionObserver(function(en){
+  en.forEach(function(x){ if(x.isIntersecting){ x.target.classList.add('in'); io.unobserve(x.target); } });
+ },{threshold:0.1});
+ var sio=new IntersectionObserver(function(en){
+  en.forEach(function(x){ if(x.isIntersecting) x.target.classList.add('in'); });
+ },{threshold:0.3});
+ function observe(){
+  var i=0;
+  app.querySelectorAll('.rv').forEach(function(el){ el.style.transitionDelay=((i++%4)*60)+'ms'; io.observe(el); });
+  app.querySelectorAll('.steps').forEach(function(s){ sio.observe(s); });
+ }
+
+ /* per-page interactions */
+ function bind(){
+  var fbar=document.getElementById('filters');
+  if(fbar){
+   fbar.addEventListener('click',function(e){
+    var b=e.target.closest('.pill'); if(!b) return;
+    fbar.querySelectorAll('.pill').forEach(function(p){p.classList.remove('on')});
+    b.classList.add('on');
+    var f=b.getAttribute('data-f');
+    document.querySelectorAll('#grid .pjcard').forEach(function(c,i){
+     var show=(f==='all'||c.getAttribute('data-c')===f);
+     if(show){ c.classList.remove('out'); c.style.opacity=0; c.style.transform='translateY(8px)';
+      setTimeout(function(){c.style.opacity=1;c.style.transform='none';},40+i*35);
+     } else { c.style.opacity=0; setTimeout(function(){c.classList.add('out')},180); }
+    });
+   });
+  }
+
+  app.querySelectorAll('.acc button').forEach(function(b){
+   b.addEventListener('click',function(){
+    var item=b.parentElement, was=item.classList.contains('open');
+    item.parentElement.querySelectorAll('.acc').forEach(function(a){a.classList.remove('open')});
+    if(!was) item.classList.add('open');
+   });
+  });
+
+  var dots=document.getElementById('dots');
+  if(dots){
+   var attrs=['Lisa Ng — VP Revenue, Orient Hotels Group','James Aroon — Group CFO, Siam Capital','Ahmad Zulkifli — Chief Commercial Officer, Selatan Resorts'];
+   dots.addEventListener('click',function(e){
+    var b=e.target.closest('[data-d]'); if(!b) return;
+    var n=+b.getAttribute('data-d');
+    document.querySelectorAll('#quotes blockquote').forEach(function(q){ q.hidden=(+q.getAttribute('data-q')!==n) });
+    document.getElementById('attr').textContent=attrs[n];
+    dots.querySelectorAll('button').forEach(function(d,i){ d.style.background=(i===n)?'var(--blue)':'var(--line)' });
+   });
+  }
+
+  var sb=document.getElementById('sendbtn');
+  if(sb){
+   sb.addEventListener('click',function(){
+    var card=document.getElementById('formcard');
+    card.innerHTML='<div style="padding:56px 0;text-align:center">'+
+     '<svg width="46" height="46" viewBox="0 0 24 24" fill="none" style="margin:0 auto 22px"><circle cx="12" cy="12" r="11" stroke="#2558FF" stroke-width="1.5"/><path d="M7 12.5l3.2 3.2L17 9" stroke="#2558FF" stroke-width="1.5"/></svg>'+
+     '<h3 class="h3">Message sent.</h3>'+
+     '<p class="body mt14" style="max-width:36ch;margin:14px auto 0">We will reply within one business day. In the meantime, our recent work is worth a look.</p>'+
+     '<a href="#/work" data-go="/work" class="tlink" style="margin-top:26px">See our work'+ARR+'</a></div>';
+   });
+  }
+
+  /* toc scroll spy */
+  var toc=app.querySelector('.toc');
+  if(toc){
+   var links=[].slice.call(toc.querySelectorAll('a[href^="#"]'));
+   var targets=links.map(function(l){return document.querySelector(l.getAttribute('href'))}).filter(Boolean);
+   if(targets.length){
+    window.addEventListener('scroll',function(){
+     var y=window.scrollY+160, best=0;
+     targets.forEach(function(t,i){ if(t.getBoundingClientRect().top+window.scrollY<=y) best=i; });
+     links.forEach(function(l,i){ l.classList.toggle('on', i===best) });
+    },{passive:true});
+   }
+  }
+ }
+
+ /* preview toggle */
+ var stage=document.getElementById('stage');
+ document.querySelectorAll('.vtoggle button').forEach(function(b){
+  b.addEventListener('click',function(){
+   document.querySelectorAll('.vtoggle button').forEach(function(x){x.classList.remove('on')});
+   b.classList.add('on');
+   stage.classList.toggle('mobile', b.getAttribute('data-v')==='mob');
+   window.scrollTo(0,0);
+  });
+ });
+
+ window.addEventListener('hashchange',function(){ var h=(location.hash||'#/').slice(1); if(h!==route) go(h,false); });
+ go((location.hash||'#/').slice(1));
+})();
 </script>
 </body>
 </html>
